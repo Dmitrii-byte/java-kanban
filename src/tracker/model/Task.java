@@ -1,3 +1,6 @@
+package tracker.model;
+
+import tracker.Status.Status;
 import java.util.Objects;
 
 public class Task {

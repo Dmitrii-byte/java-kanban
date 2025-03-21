@@ -1,3 +1,7 @@
+package tracker.controllers;
+
+import tracker.model.*;
+import tracker.Status.Status;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -69,10 +73,15 @@ public class TaskManager {
         epics.remove(id);
     }
 
-    public void getSubtasksByEpic(int id) {
-        ArrayList<Integer> subtasksId = epics.get(id).getSubtasksId();
-        for (Integer subId : subtasksId)
-            System.out.println(getSubtaskById(subId));
+    // обновленный метод (убран sout)
+    public ArrayList<Subtask> getSubtasksByEpic(int id) {
+        Epic epic = epics.get(id);
+        if (epic == null)
+            return null;
+        ArrayList<Subtask> subtasks = new ArrayList<>();
+        for (Integer subId : epic.getSubtasksId())
+            subtasks.add(getSubtaskById(subId));
+        return subtasks;
     }
 
     public void updateEpic(Epic epic) {
@@ -91,10 +100,11 @@ public class TaskManager {
         return new ArrayList<>(subtasks.values());
     }
 
+    // обновлен метод (чистка списка задач у каждого Эпика)
     public void clearSubtasks() {
-        for(Subtask subtask : subtasks.values()) {
-            int epicId = subtask.getEpicId();
-            epics.get(epicId).getSubtasksId().remove(Integer.valueOf(subtask.getId()));
+        for (Epic epic : epics.values()) {
+            epic.getSubtasksId().clear();
+            updateEpicStatus(epic);
         }
         subtasks.clear();
     }
