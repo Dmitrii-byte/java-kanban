@@ -9,7 +9,7 @@ public class Task {
     private String description;
     private Status status;
 
-    public Task () {
+    protected Task () {
         status = Status.NEW;
     }
 
@@ -69,9 +69,11 @@ public class Task {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return id == task.id;
+        if (o == null) return false;
+        if (o instanceof Task task) {
+            return id == task.id;
+        }
+        return false;
     }
 
     @Override
@@ -83,9 +85,9 @@ public class Task {
     public String toString() {
         return "Task{ "
                 + "id - " + id
-                + ";title - " + title
-                + ";description - " + description
-                + ";status - " + status
+                + "; title - " + title
+                + "; description - " + description
+                + "; status - " + status
                 + "}";
     }
 }
