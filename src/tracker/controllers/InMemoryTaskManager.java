@@ -39,10 +39,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeTaskById(int id) {
         Task task = tasks.get(id);
-        if (task == null) {
-            System.out.println("Такой задачи нет!");
-            return;
-        }
+        if (task == null) return;
         tasks.remove(id);
     }
 
