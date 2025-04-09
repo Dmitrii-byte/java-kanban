@@ -193,4 +193,12 @@ public class InMemoryTaskManagerTest {
         assertEquals(subtask, savedSubtask,"Получена не правильная подзадача");
         assertEquals(task, savedTask, "Получена не правильная задача");
     }
+
+    @Test
+    public void tryAddNullToHistory() {
+        assertNull(taskManager.getEpicById(1));
+        assertNull(taskManager.getTaskById(2));
+        assertNull(taskManager.getSubtaskById(3));
+        assertEquals(0, taskManager.getHistory().size());
+    }
 }
