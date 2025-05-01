@@ -1,11 +1,7 @@
-import tracker.Status.Status;
 import tracker.controllers.*;
 import tracker.model.*;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.Collections.addAll;
 
 public class Main {
     public static void main(String[] args) {
