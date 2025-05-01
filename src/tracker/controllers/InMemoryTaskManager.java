@@ -5,6 +5,7 @@ import tracker.Status.Status;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
@@ -41,6 +42,7 @@ public class InMemoryTaskManager implements TaskManager {
         Task task = tasks.get(id);
         if (task == null) return;
         tasks.remove(id);
+        history.remove(id);
     }
 
     @Override
@@ -85,8 +87,10 @@ public class InMemoryTaskManager implements TaskManager {
         ArrayList<Integer> subIds = new ArrayList<>(epic.getSubtasksId());
         for (Integer subId : subIds) {
             subtasks.remove(subId);
+            history.remove(subId);
         }
         epics.remove(id);
+        history.remove(id);
     }
 
     @Override
@@ -151,6 +155,7 @@ public class InMemoryTaskManager implements TaskManager {
             updateEpicStatus(epic);
         }
         subtasks.remove(id);
+        history.remove(id);
     }
 
     @Override
@@ -159,8 +164,14 @@ public class InMemoryTaskManager implements TaskManager {
         updateEpicStatus(epics.get(subtask.getEpicId()));
     }
 
-    public ArrayList<Task> getHistory() {
+    @Override
+    public List<Task> getHistory() {
         return history.getHistory();
+    }
+
+    @Override
+    public void clearHistory() {
+        history.clearHistory();
     }
 
     // вспомогательные методы

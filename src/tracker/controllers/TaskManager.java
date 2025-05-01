@@ -1,7 +1,9 @@
 package tracker.controllers;
 
 import tracker.model.*;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
     // методы для задач
@@ -45,5 +47,7 @@ public interface TaskManager {
 
     void updateSubtask(Subtask subtask);
 
-    ArrayList<Task> getHistory();
+    List<Task> getHistory();
+
+    void clearHistory();
 }
