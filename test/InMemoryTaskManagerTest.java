@@ -6,6 +6,7 @@ import tracker.controllers.*;
 import tracker.Status.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,7 +41,7 @@ public class InMemoryTaskManagerTest {
         assertEquals(task1, savedTask, "Задачи не совпадают.");
 
         Task task2 = new Task(1, "новый", "год", Status.IN_PROGRESS);
-        assertEquals(task1, task2,"Задачи с одинаковым id не совпадают");
+        assertEquals(task1, task2, "Задачи с одинаковым id не совпадают");
 
         final ArrayList<Task> tasks = taskManager.getAllTasks();
 
@@ -101,58 +102,6 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void historyShouldKeepTheFirstTask() {
-        Task task1 = new Task("Title", "Description", Status.NEW);
-        taskManager.addTask(task1);
-        taskManager.getTaskById(task1.getId());
-        final Task savedTask = new Task(task1.getId(), task1.getTitle(), task1.getDescription(), task1.getStatus());
-
-        task1.setTitle("newTitle");
-        task1.setDescription("newDescription");
-        taskManager.updateTask(task1);
-
-        Task task2 = taskManager.getHistory().getFirst();
-        assertEquals(savedTask, task2);
-
-        taskManager.getHistory().clear();
-        assertEquals(0, taskManager.getHistory().size());
-
-        // то же самое для эпика
-        Epic epic = new Epic("Title", "Description", new ArrayList<>());
-        taskManager.addEpic(epic);
-        taskManager.getEpicById(epic.getId());
-
-        final Epic savedEpic = new Epic(epic.getId(), epic.getTitle(), epic.getDescription(), epic.getSubtasksId());
-
-        epic.setTitle("newTitle");
-        epic.setDescription("newDescription");
-        taskManager.updateEpic(epic);
-
-        Epic epic2 = (Epic) taskManager.getHistory().getFirst();
-        assertEquals(savedEpic, epic2);
-
-        taskManager.getHistory().clear();
-        assertEquals(0, taskManager.getHistory().size());
-
-        // то же самое для подзадач
-        Subtask subtask = new Subtask("Title", "Description", 1);
-        taskManager.addSubtask(subtask);
-        taskManager.getSubtaskById(subtask.getId());
-
-        final Subtask savedSubtask = new Subtask(subtask.getId(), subtask.getTitle(), subtask.getDescription(), subtask.getEpicId());
-
-        subtask.setTitle("newTitle");
-        subtask.setDescription("newDescription");
-        taskManager.updateEpic(epic);
-
-        Subtask subtask2 = (Subtask) taskManager.getHistory().getFirst();
-        assertEquals(savedSubtask, subtask2);
-
-        taskManager.getHistory().clear();
-        assertEquals(0, taskManager.getHistory().size());
-    }
-
-    @Test
     public void updateStatusEpic() {
         Epic epic = new Epic(1, "Эпик", "новый", new ArrayList<>());
         Subtask subtask1 = new Subtask("новая", "убраться", 1);
@@ -190,7 +139,7 @@ public class InMemoryTaskManagerTest {
         final Subtask savedSubtask = taskManager.getSubtaskById(subtask.getId());
 
         assertEquals(epic, savedEpic, "Получен не правильный эпик");
-        assertEquals(subtask, savedSubtask,"Получена не правильная подзадача");
+        assertEquals(subtask, savedSubtask, "Получена не правильная подзадача");
         assertEquals(task, savedTask, "Получена не правильная задача");
     }
 
@@ -200,5 +149,113 @@ public class InMemoryTaskManagerTest {
         assertNull(taskManager.getTaskById(2));
         assertNull(taskManager.getSubtaskById(3));
         assertEquals(0, taskManager.getHistory().size());
+    }
+
+    @Test
+    public void historyShouldKeepTheFirstTask() {
+        Task task1 = new Task("Title", "Description", Status.NEW);
+        taskManager.addTask(task1);
+        taskManager.getTaskById(task1.getId());
+        final Task savedTask = new Task(task1.getId(), task1.getTitle(), task1.getDescription(), task1.getStatus());
+
+        task1.setTitle("newTitle");
+        task1.setDescription("newDescription");
+        taskManager.updateTask(task1);
+
+        Task task2 = taskManager.getHistory().getFirst();
+        assertEquals(savedTask, task2);
+
+        taskManager.clearHistory();
+        assertEquals(0, taskManager.getHistory().size());
+
+        // то же самое для эпика
+        Epic epic = new Epic("Title", "Description", new ArrayList<>());
+        taskManager.addEpic(epic);
+        taskManager.getEpicById(epic.getId());
+
+        final Epic savedEpic = new Epic(epic.getId(), epic.getTitle(), epic.getDescription(), epic.getSubtasksId());
+
+        epic.setTitle("newTitle");
+        epic.setDescription("newDescription");
+        taskManager.updateEpic(epic);
+
+        Epic epic2 = (Epic) taskManager.getHistory().getFirst();
+        assertEquals(savedEpic, epic2);
+
+        taskManager.clearHistory();
+        assertEquals(0, taskManager.getHistory().size());
+
+        // то же самое для подзадач
+        Subtask subtask = new Subtask("Title", "Description", 1);
+        taskManager.addSubtask(subtask);
+        taskManager.getSubtaskById(subtask.getId());
+
+        final Subtask savedSubtask = new Subtask(subtask.getId(), subtask.getTitle(), subtask.getDescription(), subtask.getEpicId());
+
+        subtask.setTitle("newTitle");
+        subtask.setDescription("newDescription");
+        taskManager.updateEpic(epic);
+
+        Subtask subtask2 = (Subtask) taskManager.getHistory().getFirst();
+        assertEquals(savedSubtask, subtask2);
+
+        taskManager.clearHistory();
+        assertEquals(0, taskManager.getHistory().size());
+    }
+
+    @Test
+    public void shouldStoreWithoutRepetitions() {
+        Task task1 = new Task("task1", "DisTask1", Status.IN_PROGRESS);
+        Task task2 = new Task("task2", "DisTask2", Status.NEW);
+        Task task3 = new Task("task3", "DisTask3", Status.DONE);
+        List<Task> tasks = new ArrayList<>(List.of(task1, task2, task3));
+        for(Task task : tasks)
+            taskManager.addTask(task);
+
+        Epic epic1 = new Epic("Epic1", "DisEpic1", new ArrayList<>());
+        Epic epic2 = new Epic("Epic2", "DisEpic2", new ArrayList<>());
+        List<Epic> epics = new ArrayList<>(List.of(epic1, epic2));
+        for(Epic epic : epics)
+            taskManager.addEpic(epic);
+
+        Subtask sub1 = new Subtask("sub1", "DisSub1", epic2.getId());
+        Subtask sub2 = new Subtask("sub2", "DisSub2", epic2.getId());
+        List<Subtask> subs = new ArrayList<>(List.of(sub1, sub2));
+        for(Subtask subtask : subs)
+            taskManager.addSubtask(subtask);
+
+        taskManager.getTaskById(task1.getId());
+        taskManager.getTaskById(task1.getId());
+        taskManager.getSubtaskById(sub1.getId());
+        taskManager.getEpicById(epic2.getId());
+        taskManager.getSubtaskById(sub1.getId());
+        taskManager.getEpicById(epic2.getId());
+        taskManager.getEpicById(epic1.getId());
+        assertEquals(4, taskManager.getHistory().size());
+    }
+
+    @Test
+    public void shouldRemoveSubtasksWhenEpicWasRemoved() {
+        Epic epic1 = new Epic("Epic1", "DisEpic1", new ArrayList<>());
+        Epic epic2 = new Epic("Epic2", "DisEpic2", new ArrayList<>());
+        List<Epic> epics = new ArrayList<>(List.of(epic1, epic2));
+        for(Epic epic : epics)
+            taskManager.addEpic(epic);
+
+        Subtask sub1 = new Subtask("sub1", "DisSub1", epic2.getId());
+        Subtask sub2 = new Subtask("sub2", "DisSub2", epic2.getId());
+        List<Subtask> subs = new ArrayList<>(List.of(sub1, sub2));
+        for(Subtask subtask : subs)
+            taskManager.addSubtask(subtask);
+
+        taskManager.getSubtaskById(sub2.getId());
+        taskManager.getSubtaskById(sub1.getId());
+        taskManager.getEpicById(epic1.getId());
+        taskManager.getEpicById(epic2.getId());
+        assertEquals(4, taskManager.getHistory().size());
+
+        taskManager.removeEpicById(epic2.getId());
+
+        assertEquals(1, taskManager.getHistory().size(), "Должен удалиться эпик с подзадачами");
     }
 }

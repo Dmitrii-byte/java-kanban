@@ -1,6 +1,7 @@
 package tracker.model;
 
 import tracker.Status.Status;
+
 import java.util.Objects;
 
 public class Task {
@@ -9,27 +10,27 @@ public class Task {
     private String description;
     private Status status;
 
-    protected Task () {
+    protected Task() {
         status = Status.NEW;
     }
 
-    public Task (String title, String description) {
+    public Task(String title, String description) {
         this();
         this.title = title;
         this.description = description;
     }
 
-    public Task (String title, String description, Status status) {
+    public Task(String title, String description, Status status) {
         this(title, description);
         this.status = status;
     }
 
-    public Task (int id, String title, String description) {
+    public Task(int id, String title, String description) {
         this(title, description);
         this.id = id;
     }
 
-    public Task (int id, String title, String description, Status status) {
+    public Task(int id, String title, String description, Status status) {
         this(title, description, status);
         this.id = id;
     }

@@ -5,6 +5,7 @@ import tracker.Status.Status;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
@@ -21,6 +22,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTasks() {
+        for (Integer task : tasks.keySet())
+            history.remove(task);
         tasks.clear();
     }
 
@@ -41,6 +44,7 @@ public class InMemoryTaskManager implements TaskManager {
         Task task = tasks.get(id);
         if (task == null) return;
         tasks.remove(id);
+        history.remove(id);
     }
 
     @Override
@@ -62,6 +66,8 @@ public class InMemoryTaskManager implements TaskManager {
                 removeSubtaskById(subId);
             }
         }
+        for (Integer epic : epics.keySet())
+            history.remove(epic);
         epics.clear();
     }
 
@@ -85,8 +91,10 @@ public class InMemoryTaskManager implements TaskManager {
         ArrayList<Integer> subIds = new ArrayList<>(epic.getSubtasksId());
         for (Integer subId : subIds) {
             subtasks.remove(subId);
+            history.remove(subId);
         }
         epics.remove(id);
+        history.remove(id);
     }
 
     @Override
@@ -121,6 +129,8 @@ public class InMemoryTaskManager implements TaskManager {
             epic.getSubtasksId().clear();
             updateEpicStatus(epic);
         }
+        for (Integer subtask : subtasks.keySet())
+            history.remove(subtask);
         subtasks.clear();
     }
 
@@ -151,6 +161,7 @@ public class InMemoryTaskManager implements TaskManager {
             updateEpicStatus(epic);
         }
         subtasks.remove(id);
+        history.remove(id);
     }
 
     @Override
@@ -159,8 +170,14 @@ public class InMemoryTaskManager implements TaskManager {
         updateEpicStatus(epics.get(subtask.getEpicId()));
     }
 
-    public ArrayList<Task> getHistory() {
+    @Override
+    public List<Task> getHistory() {
         return history.getHistory();
+    }
+
+    @Override
+    public void clearHistory() {
+        history.clearHistory();
     }
 
     // вспомогательные методы
