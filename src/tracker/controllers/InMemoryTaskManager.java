@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final HashMap<Integer, Task> tasks = new HashMap<>();
-    private final HashMap<Integer, Epic> epics = new HashMap<>();
-    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    protected final HashMap<Integer, Task> tasks = new HashMap<>();
+    protected final HashMap<Integer, Epic> epics = new HashMap<>();
+    protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager history = Managers.getDefaultHistory();
     private int id = 0;
 
@@ -180,29 +180,7 @@ public class InMemoryTaskManager implements TaskManager {
         history.clearHistory();
     }
 
-    // вспомогательные методы
-    private int generationId() {
-        return ++id;
-    }
-
-    private <T> T getTaskFromMap(int id, HashMap<Integer, T> map) {
-        T object = map.get(id);
-        if (object != null) {
-            switch (object) {
-                case Subtask subtask ->
-                        history.addToHistory(new Subtask(subtask.getId(), subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId()));
-                case Epic epic ->
-                        history.addToHistory(new Epic(epic.getId(), epic.getTitle(), epic.getDescription(), epic.getSubtasksId()));
-                case Task task ->
-                        history.addToHistory(new Task(task.getId(), task.getTitle(), task.getDescription(), task.getStatus()));
-                default -> {
-                }
-            }
-        }
-        return object;
-    }
-
-    private void updateEpicStatus(Epic epic) {
+    protected void updateEpicStatus(Epic epic) {
         boolean allNew = true;
         boolean allDone = true;
         for (Integer subId : epic.getSubtasksId()) {
@@ -224,5 +202,27 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             epic.setStatus(Status.IN_PROGRESS);
         }
+    }
+
+    // вспомогательные методы
+    private int generationId() {
+        return ++id;
+    }
+
+    private <T> T getTaskFromMap(int id, HashMap<Integer, T> map) {
+        T object = map.get(id);
+        if (object != null) {
+            switch (object) {
+                case Subtask subtask ->
+                        history.addToHistory(new Subtask(subtask.getId(), subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId()));
+                case Epic epic ->
+                        history.addToHistory(new Epic(epic.getId(), epic.getTitle(), epic.getDescription(), epic.getSubtasksId()));
+                case Task task ->
+                        history.addToHistory(new Task(task.getId(), task.getTitle(), task.getDescription(), task.getStatus()));
+                default -> {
+                }
+            }
+        }
+        return object;
     }
 }

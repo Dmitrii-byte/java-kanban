@@ -209,19 +209,19 @@ public class InMemoryTaskManagerTest {
         Task task2 = new Task("task2", "DisTask2", Status.NEW);
         Task task3 = new Task("task3", "DisTask3", Status.DONE);
         List<Task> tasks = new ArrayList<>(List.of(task1, task2, task3));
-        for(Task task : tasks)
+        for (Task task : tasks)
             taskManager.addTask(task);
 
         Epic epic1 = new Epic("Epic1", "DisEpic1", new ArrayList<>());
         Epic epic2 = new Epic("Epic2", "DisEpic2", new ArrayList<>());
         List<Epic> epics = new ArrayList<>(List.of(epic1, epic2));
-        for(Epic epic : epics)
+        for (Epic epic : epics)
             taskManager.addEpic(epic);
 
         Subtask sub1 = new Subtask("sub1", "DisSub1", epic2.getId());
         Subtask sub2 = new Subtask("sub2", "DisSub2", epic2.getId());
         List<Subtask> subs = new ArrayList<>(List.of(sub1, sub2));
-        for(Subtask subtask : subs)
+        for (Subtask subtask : subs)
             taskManager.addSubtask(subtask);
 
         taskManager.getTaskById(task1.getId());
@@ -239,13 +239,13 @@ public class InMemoryTaskManagerTest {
         Epic epic1 = new Epic("Epic1", "DisEpic1", new ArrayList<>());
         Epic epic2 = new Epic("Epic2", "DisEpic2", new ArrayList<>());
         List<Epic> epics = new ArrayList<>(List.of(epic1, epic2));
-        for(Epic epic : epics)
+        for (Epic epic : epics)
             taskManager.addEpic(epic);
 
         Subtask sub1 = new Subtask("sub1", "DisSub1", epic2.getId());
         Subtask sub2 = new Subtask("sub2", "DisSub2", epic2.getId());
         List<Subtask> subs = new ArrayList<>(List.of(sub1, sub2));
-        for(Subtask subtask : subs)
+        for (Subtask subtask : subs)
             taskManager.addSubtask(subtask);
 
         taskManager.getSubtaskById(sub2.getId());
