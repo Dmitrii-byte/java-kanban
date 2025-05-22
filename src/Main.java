@@ -7,7 +7,6 @@ import static tracker.controllers.FileBackedTaskManager.loadFromFile;
 
 public class Main {
     public static void main(String[] args) {
-        File file1 = Paths.get("data.txt").toFile();
         File file2 = Paths.get("output.txt").toFile();
         FileBackedTaskManager files = loadFromFile(file2);
 
