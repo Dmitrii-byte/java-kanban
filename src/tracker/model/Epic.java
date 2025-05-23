@@ -1,5 +1,7 @@
 package tracker.model;
 
+import tracker.TypeTask.TypeTask;
+
 import java.util.ArrayList;
 
 public class Epic extends Task {
@@ -21,6 +23,11 @@ public class Epic extends Task {
 
     public void setSubtasks(ArrayList<Integer> subtasksId) {
         this.subtasksId = subtasksId;
+    }
+
+    @Override
+    public TypeTask getType() {
+        return TypeTask.EPIC;
     }
 
     @Override

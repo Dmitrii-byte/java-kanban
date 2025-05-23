@@ -1,6 +1,7 @@
 package tracker.model;
 
 import tracker.Status.Status;
+import tracker.TypeTask.TypeTask;
 
 public class Subtask extends Task {
     private int epicId;
@@ -31,6 +32,11 @@ public class Subtask extends Task {
 
     public void setEpicId(int epicId) {
         this.epicId = epicId;
+    }
+
+    @Override
+    public TypeTask getType() {
+        return TypeTask.SUBTASK;
     }
 
     @Override

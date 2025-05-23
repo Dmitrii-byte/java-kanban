@@ -5,10 +5,12 @@ import tracker.TypeTask.TypeTask;
 import tracker.model.Epic;
 import tracker.model.Subtask;
 import tracker.model.Task;
+import tracker.Exception.ManagerSaveException;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -98,13 +100,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             String content;
 
             while ((content = reader.readLine()) != null) {
-                if (savedData.fromString(content) instanceof Subtask sub) {
-                    savedData.subtasks.put(sub.getId(), sub);
-                } else if (savedData.fromString(content) instanceof Epic epic) {
-                    savedData.epics.put(epic.getId(), epic);
-                } else if (savedData.fromString(content) instanceof Task task) {
-                    savedData.tasks.put(task.getId(), task);
+                Task task = savedData.fromString(content);
+
+                switch (Objects.requireNonNull(task).getType()) {
+                    case SUBTASK -> savedData.subtasks.put(task.getId(), (Subtask) task);
+                    case EPIC -> savedData.epics.put(task.getId(), (Epic) task);
+                    case TASK -> savedData.tasks.put(task.getId(), task);
+                    default -> {
+                    }
                 }
+
             }
 
             for (Epic epic : savedData.epics.values()) {
@@ -112,7 +117,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
         } catch (IOException ex) {
-            System.out.println("Ошибка загрузки данных из файла");
+            throw new ManagerSaveException("Ошибка загрузки данных из файла " + ex.getMessage());
         }
 
         return savedData;
@@ -131,24 +136,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private String toString(Task task) {
-        String type;
+        TypeTask type = task.getType();
         String result;
-        int epicId = 0;
 
-        if (task instanceof Epic) {
-            type = String.valueOf(TypeTask.EPIC);
-        } else if (task instanceof Subtask) {
-            type = String.valueOf(TypeTask.SUBTASK);
-            epicId = subtasks.get(task.getId()).getEpicId();
-        } else {
-            type = String.valueOf(TypeTask.TASK);
-        }
-
-        if (epicId == 0) {
+        if (type == TypeTask.SUBTASK)
+            result = task.getId() + "," + type + "," + task.getTitle() + "," + task.getStatus() + "," + task.getDescription() + "," + subtasks.get(task.getId()).getEpicId() + "\n";
+        else
             result = task.getId() + "," + type + "," + task.getTitle() + "," + task.getStatus() + "," + task.getDescription() + "\n";
-        } else {
-            result = task.getId() + "," + type + "," + task.getTitle() + "," + task.getStatus() + "," + task.getDescription() + "," + epicId + "\n";
-        }
 
         return result;
     }
@@ -180,7 +174,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
         } catch (IOException ex) {
-            System.out.println("Ошибка чтения файла");
+            throw new ManagerSaveException("Ошибка при чтении файла " + ex.getMessage());
         }
     }
 }

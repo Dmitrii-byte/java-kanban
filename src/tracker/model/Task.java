@@ -1,6 +1,7 @@
 package tracker.model;
 
 import tracker.Status.Status;
+import tracker.TypeTask.TypeTask;
 
 import java.util.Objects;
 
@@ -65,6 +66,10 @@ public class Task {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public TypeTask getType() {
+        return TypeTask.TASK;
     }
 
     @Override
