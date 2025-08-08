@@ -25,15 +25,14 @@ public class Task {
         this.description = description;
     }
 
-    public Task(String title, String description, Duration duration) {
-        this();
-        this.title = title;
-        this.description = description;
+    public Task(String title, String description, Duration duration, LocalDateTime startTime) {
+        this(title, description);
         this.duration = duration;
+        this.startTime = startTime;
     }
 
-    public Task(String title, String description, Duration duration, Status status) {
-        this(title, description, duration);
+    public Task(String title, String description, Duration duration, LocalDateTime startTime, Status status) {
+        this(title, description, duration, startTime);
         this.status = status;
     }
 
@@ -42,13 +41,13 @@ public class Task {
         this.id = id;
     }
 
-    public Task(int id, String title, String description, Duration duration) {
-        this(title, description, duration);
+    public Task(int id, String title, String description, Duration duration, LocalDateTime startTime) {
+        this(title, description, duration, startTime);
         this.id = id;
     }
 
-    public Task(int id, String title, String description, Duration duration, Status status) {
-        this(title, description, duration, status);
+    public Task(int id, String title, String description, Duration duration, LocalDateTime startTime, Status status) {
+        this(title, description, duration, startTime, status);
         this.id = id;
     }
 

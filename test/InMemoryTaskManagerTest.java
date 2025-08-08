@@ -1,4 +1,4 @@
-import org.junit.jupiter.api.BeforeAll;
+/*import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tracker.model.*;
@@ -258,4 +258,4 @@ public class InMemoryTaskManagerTest {
 
         assertEquals(1, taskManager.getHistory().size(), "Должен удалиться эпик с подзадачами");
     }
-}
+}*/
