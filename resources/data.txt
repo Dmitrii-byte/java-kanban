@@ -1,4 +1,3 @@
 id,type,name,status,description,epic
 1,TASK,reg,IN_PROGRESS,sdcds
-2,EPIC,asdasd,DONE,asdasd
-3,SUBTASK,dsd,DONE,saad,2
+2,SUBTASK,dsd,DONE,saad,2

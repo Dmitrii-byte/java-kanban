@@ -6,6 +6,7 @@ import tracker.Status.Status;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks = new HashMap<>();
@@ -34,7 +35,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addTask(Task task) {
-        Task newTask = new Task(generationId(), task.getTitle(), task.getDescription(), task.getStatus());
+        Task newTask = new Task(generationId(), task.getTitle(), task.getDescription(), task.getDuration(), task.getStatus());
         tasks.put(newTask.getId(), newTask);
         task.setId(newTask.getId());
     }
@@ -141,7 +142,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSubtask(Subtask subtask) {
-        Subtask newSubtask = new Subtask(generationId(), subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId());
+        Subtask newSubtask = new Subtask(generationId(), subtask.getTitle(), subtask.getDescription(), subtask.getDuration(), subtask.getStatus(), subtask.getEpicId());
         subtasks.put(newSubtask.getId(), newSubtask);
         Epic epic = epics.get(subtask.getEpicId());
         if (epic != null) {
@@ -214,11 +215,11 @@ public class InMemoryTaskManager implements TaskManager {
         if (object != null) {
             switch (object) {
                 case Subtask subtask ->
-                        history.addToHistory(new Subtask(subtask.getId(), subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId()));
+                        history.addToHistory(new Subtask(subtask.getId(), subtask.getTitle(), subtask.getDescription(), subtask.getDuration(), subtask.getStatus(), subtask.getEpicId()));
                 case Epic epic ->
                         history.addToHistory(new Epic(epic.getId(), epic.getTitle(), epic.getDescription(), epic.getSubtasksId()));
                 case Task task ->
-                        history.addToHistory(new Task(task.getId(), task.getTitle(), task.getDescription(), task.getStatus()));
+                        history.addToHistory(new Task(task.getId(), task.getTitle(), task.getDescription(), task.getDuration(), task.getStatus()));
                 default -> {
                 }
             }

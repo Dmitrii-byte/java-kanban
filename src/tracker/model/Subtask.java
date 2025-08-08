@@ -3,26 +3,28 @@ package tracker.model;
 import tracker.Status.Status;
 import tracker.TypeTask.TypeTask;
 
+import java.time.Duration;
+
 public class Subtask extends Task {
     private int epicId;
 
-    public Subtask(int id, String title, String description, Status status, int epicId) {
-        super(id, title, description, status);
+    public Subtask(int id, String title, String description, Duration duration, Status status, int epicId) {
+        super(id, title, description, duration, status);
         this.epicId = epicId;
     }
 
-    public Subtask(int id, String title, String description, int epicId) {
-        super(id, title, description);
+    public Subtask(int id, String title, String description, Duration duration, int epicId) {
+        super(id, title, description, duration);
         this.epicId = epicId;
     }
 
-    public Subtask(String title, String description, int epicId) {
-        super(title, description);
+    public Subtask(String title, String description, Duration duration, int epicId) {
+        super(title, description, duration);
         this.epicId = epicId;
     }
 
-    public Subtask(String title, String description, Status status, int epicId) {
-        super(title, description, status);
+    public Subtask(String title, String description, Duration duration, Status status, int epicId) {
+        super(title, description, duration, status);
         this.epicId = epicId;
     }
 

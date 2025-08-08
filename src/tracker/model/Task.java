@@ -3,6 +3,8 @@ package tracker.model;
 import tracker.Status.Status;
 import tracker.TypeTask.TypeTask;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -10,6 +12,8 @@ public class Task {
     private String title;
     private String description;
     private Status status;
+    private Duration duration;
+    private LocalDateTime startTime;
 
     protected Task() {
         status = Status.NEW;
@@ -21,8 +25,15 @@ public class Task {
         this.description = description;
     }
 
-    public Task(String title, String description, Status status) {
-        this(title, description);
+    public Task(String title, String description, Duration duration) {
+        this();
+        this.title = title;
+        this.description = description;
+        this.duration = duration;
+    }
+
+    public Task(String title, String description, Duration duration, Status status) {
+        this(title, description, duration);
         this.status = status;
     }
 
@@ -31,8 +42,13 @@ public class Task {
         this.id = id;
     }
 
-    public Task(int id, String title, String description, Status status) {
-        this(title, description, status);
+    public Task(int id, String title, String description, Duration duration) {
+        this(title, description, duration);
+        this.id = id;
+    }
+
+    public Task(int id, String title, String description, Duration duration, Status status) {
+        this(title, description, duration, status);
         this.id = id;
     }
 
@@ -80,6 +96,26 @@ public class Task {
             return id == task.id;
         }
         return false;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
     }
 
     @Override
