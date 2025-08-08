@@ -3,10 +3,11 @@ package tracker.controllers;
 import tracker.model.*;
 import tracker.Status.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks = new HashMap<>();
@@ -184,6 +185,10 @@ public class InMemoryTaskManager implements TaskManager {
     protected void updateEpicStatus(Epic epic) {
         boolean allNew = true;
         boolean allDone = true;
+        LocalDateTime earliestStart = null;
+        LocalDateTime latestEnd = null;
+        Duration totalDuration = Duration.ZERO;
+
         for (Integer subId : epic.getSubtasksId()) {
             Subtask subtask = subtasks.get(subId);
             if (subtask != null) {
@@ -194,6 +199,22 @@ public class InMemoryTaskManager implements TaskManager {
                     allDone = false;
                 }
             }
+
+            LocalDateTime subtaskStart = subtask.getStartTime();
+            if (subtaskStart != null) {
+                if (earliestStart != null || subtaskStart.isBefore(earliestStart)) {
+                    earliestStart = subtaskStart;
+                }
+
+                LocalDateTime subtaskEnd = subtask.getEndTime();
+                if (subtaskEnd != null || subtaskEnd.isAfter(latestEnd)) {
+                    latestEnd = subtaskEnd;
+                }
+            }
+
+            if (subtask.getDuration() != null) {
+                totalDuration = totalDuration.plus(subtask.getDuration());
+            }
         }
 
         if (allNew) {
@@ -203,6 +224,10 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             epic.setStatus(Status.IN_PROGRESS);
         }
+
+        epic.setStartTime(earliestStart);
+        epic.setDuration(totalDuration);
+        epic.setEndTime(latestEnd);
     }
 
     // вспомогательные методы

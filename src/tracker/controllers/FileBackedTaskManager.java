@@ -8,6 +8,7 @@ import tracker.model.Task;
 import tracker.Exception.ManagerSaveException;
 
 import java.io.*;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -151,6 +152,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String[] split = value.split(",");
 
         if (split[1].equals(String.valueOf(TypeTask.TASK))) {
+            Duration duration = Duration.of(Integer.parseInt(split[0]), );
             return new Task(Integer.parseInt(split[0]), split[2], split[4], Status.valueOf(split[3]));
         } else if (split[1].equals(String.valueOf(TypeTask.SUBTASK))) {
             Subtask subtask = new Subtask(Integer.parseInt(split[0]), split[2], split[4], Status.valueOf(split[3]), Integer.parseInt(split[5]));
