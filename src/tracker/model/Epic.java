@@ -4,6 +4,7 @@ import tracker.TypeTask.TypeTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Epic extends Task {
@@ -59,8 +60,8 @@ public class Epic extends Task {
                 + "; title - " + getTitle()
                 + "; description - " + getDescription()
                 + "; status - " + getStatus()
-                + "; startTime - " + getStartTime()
-                + "; duration - " + getDuration()
+                + "; startTime - " + getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                + "; duration - " + getDuration().toHours() + ":" + getDuration().toMinutesPart()
                 + "; endTime - " + getEndTime()
                 + "; subtasks=" + subtasksId
                 + '}';

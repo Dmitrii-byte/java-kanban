@@ -1,4 +1,3 @@
 id,type,name,status,description,epic,startTime,duration
 1,TASK,reg,IN_PROGRESS,sdcds,2022-12-22T10:25:00,100
-2,EPIC,asdasd,DONE,asdasd,2022-12-22T10:25:00,100
-3,SUBTASK,dsd,DONE,saad,2022-12-22T10:25:00,100,2,
+2,EPIC,asdasd,NEW,asdasd,,

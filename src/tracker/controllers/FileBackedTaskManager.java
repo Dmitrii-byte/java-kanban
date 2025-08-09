@@ -158,7 +158,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         if (type == TypeTask.SUBTASK) {
-            result.append(",").append(((Subtask) task).getEpicId()).append(",");
+            result.append(",").append(((Subtask) task).getEpicId());
         }
 
         result.append("\n");
@@ -183,7 +183,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
             case SUBTASK -> {
                 int epicId = Integer.parseInt(split[7]);
-                return new Subtask(id, title, description, duration, startTime, status, epicId);
+                Subtask subtask = new Subtask(id, title, description, duration, startTime, status, epicId);
+                Epic epic = epics.get(subtask.getEpicId());
+                if (epic != null) {
+                    epic.getSubtasksId().add(subtask.getId());
+                }
+                return subtask;
             }
             case EPIC -> {
                 Epic epic = new Epic(id, title, description, new ArrayList<>());

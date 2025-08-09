@@ -5,6 +5,7 @@ import tracker.TypeTask.TypeTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task {
@@ -25,6 +26,13 @@ public class Task {
         this.description = description;
     }
 
+    public Task(String title, String description, Status status) {
+        this();
+        this.title = title;
+        this.description = description;
+        this.status = status;
+    }
+
     public Task(String title, String description, Duration duration, LocalDateTime startTime) {
         this(title, description);
         this.duration = duration;
@@ -38,6 +46,11 @@ public class Task {
 
     public Task(int id, String title, String description) {
         this(title, description);
+        this.id = id;
+    }
+
+    public Task(int id, String title, String description, Status status) {
+        this(title, description, status);
         this.id = id;
     }
 
@@ -129,6 +142,9 @@ public class Task {
                 + "; title - " + title
                 + "; description - " + description
                 + "; status - " + status
+                + "; startTime - " + getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                + "; duration - " + getDuration().toHours() + ":" + getDuration().toMinutesPart()
+                + "; endTime=" + getEndTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                 + "}";
     }
 }

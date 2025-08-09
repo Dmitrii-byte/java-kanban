@@ -5,6 +5,7 @@ import tracker.TypeTask.TypeTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Subtask extends Task {
     private int epicId;
@@ -49,6 +50,9 @@ public class Subtask extends Task {
                 + "; title - " + getTitle()
                 + "; description - " + getDescription()
                 + "; status - " + getStatus()
+                + "; startTime - " + getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                + "; duration - " + getDuration().toHours() + ":" + getDuration().toMinutesPart()
+                + "; endTime=" + getEndTime()
                 + "; epicId=" + epicId
                 + '}';
     }
