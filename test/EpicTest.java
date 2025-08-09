@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
-    private InMemoryTaskManager taskManager = new InMemoryTaskManager();
+    private final InMemoryTaskManager taskManager = new InMemoryTaskManager();
 
     @Test
     public void testEpicStatusWithNoSubtasks() {
@@ -50,7 +50,7 @@ class EpicTest {
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
 
-        assertEquals(Status.DONE, epic.getStatus(), "Статус эпика со всеми DONE подзадачами должен быть DONE");
+        assertEquals(Status.DONE, taskManager.getEpicById(epic.getId()).getStatus(), "Статус эпика со всеми DONE подзадачами должен быть DONE");
     }
 
     @Test
@@ -66,7 +66,7 @@ class EpicTest {
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
 
-        assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Статус эпика с подзадачами NEW и DONE должен быть IN_PROGRESS");
+        assertEquals(Status.IN_PROGRESS, taskManager.getEpicById(epic.getId()).getStatus(), "Статус эпика с подзадачами NEW и DONE должен быть IN_PROGRESS");
     }
 
     @Test
@@ -82,16 +82,24 @@ class EpicTest {
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
 
-        assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Статус эпика со всеми IN_PROGRESS подзадачами должен быть IN_PROGRESS");
+        assertEquals(Status.IN_PROGRESS, taskManager.getEpicById(epic.getId()).getStatus(), "Статус эпика со всеми IN_PROGRESS подзадачами должен быть IN_PROGRESS");
     }
 
     @Test
-    public void testEpicTimeCalculationWithNoSubtasks() {
+    public void testEpicTimeCalculationWithSubtasks() {
         Epic epic = new Epic("Epic with no subtasks", "Description", new ArrayList<>());
         taskManager.addEpic(epic);
 
-        assertNull(epic.getStartTime(), "Время начала эпика без подзадач должно быть null");
-        assertNull(epic.getEndTime(), "Время окончания эпика без подзадач должно быть null");
-        assertNull(epic.getDuration(), "Продолжительность эпика без подзадач должна быть null");
+        Subtask subtask1 = new Subtask("Subtask 1", "Description", Duration.ofMinutes(30),
+                LocalDateTime.of(2022, 12, 10, 10, 10), Status.IN_PROGRESS, epic.getId());
+        Subtask subtask2 = new Subtask("Subtask 2", "Description", Duration.ofMinutes(30),
+                LocalDateTime.of(2022, 12, 10, 10, 50), Status.IN_PROGRESS, epic.getId());
+
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
+
+        assertEquals(taskManager.getSubtaskById(subtask1.getId()).getStartTime(), taskManager.getEpicById(epic.getId()).getStartTime(), "Время начала эпика должно совпасть с его началом его минимального сабтаска");
+        assertEquals(taskManager.getSubtaskById(subtask2.getId()).getEndTime(), taskManager.getEpicById(epic.getId()).getEndTime(), "Время окончания эпика должно совпасть с окончанием его максимального сабтаска");
+        assertEquals(taskManager.getSubtaskById(subtask1.getId()).getDuration().plus(taskManager.getSubtaskById(subtask2.getId()).getDuration()), taskManager.getEpicById(epic.getId()).getDuration(), "Продолжительность эпика должна равняться сумме продолжительности его сабтасков");
     }
 }
