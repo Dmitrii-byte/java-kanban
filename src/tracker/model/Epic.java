@@ -60,9 +60,9 @@ public class Epic extends Task {
                 + "; title - " + getTitle()
                 + "; description - " + getDescription()
                 + "; status - " + getStatus()
-                + "; startTime - " + getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                + "; duration - " + getDuration().toHours() + ":" + getDuration().toMinutesPart()
-                + "; endTime - " + getEndTime()
+                + "; startTime - " + (getStartTime() != null ? getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) : " ")
+                + "; duration - " + (getDuration() != null ? getDuration().toHours() + ":" + getDuration().toMinutesPart() : " ")
+                + "; endTime - " + (getEndTime() != null ? getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) : " ")
                 + "; subtasks=" + subtasksId
                 + '}';
     }

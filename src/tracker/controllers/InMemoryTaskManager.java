@@ -7,10 +7,9 @@ import tracker.Status.Status;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks = new HashMap<>();
@@ -27,8 +26,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTasks() {
-        for (Integer task : tasks.keySet())
-            history.remove(task);
+        tasks.keySet().forEach(history::remove);
         tasks.clear();
     }
 
@@ -71,14 +69,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearEpics() {
-        for (Epic epic : epics.values()) {
-            ArrayList<Integer> subIds = new ArrayList<>(epic.getSubtasksId());
-            for (Integer subId : subIds) {
-                removeSubtaskById(subId);
-            }
-        }
-        for (Integer epic : epics.keySet())
-            history.remove(epic);
+        epics.values().stream()
+                .map(Epic::getSubtasksId)
+                .flatMap(List::stream)
+                .forEach(this::removeSubtaskById);
+
+        epics.keySet().forEach(history::remove);
         epics.clear();
     }
 
@@ -99,11 +95,12 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeEpicById(int id) {
         Epic epic = epics.get(id);
         if (epic == null) return;
-        ArrayList<Integer> subIds = new ArrayList<>(epic.getSubtasksId());
-        for (Integer subId : subIds) {
-            subtasks.remove(subId);
-            history.remove(subId);
-        }
+
+        epic.getSubtasksId().forEach(sub -> {
+            subtasks.remove(sub);
+            history.remove(sub);
+        });
+
         epics.remove(id);
         history.remove(id);
     }
@@ -113,12 +110,11 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(id);
         if (epic == null)
             return null;
-        ArrayList<Subtask> subtasksList = new ArrayList<>();
-        for (Integer subId : epic.getSubtasksId()) {
-            Subtask subtask = subtasks.get(subId);
-            subtasksList.add(subtask);
-        }
-        return subtasksList;
+
+        return epic.getSubtasksId().stream()
+                .map(subtasks::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -136,12 +132,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearSubtasks() {
-        for (Epic epic : epics.values()) {
-            epic.getSubtasksId().clear();
-            updateEpicStatus(epic);
-        }
-        for (Integer subtask : subtasks.keySet())
-            history.remove(subtask);
+        epics.values().stream()
+                .peek(epic -> epic.getSubtasksId().clear())
+                .forEach(this::updateEpicStatus);
+
+        subtasks.keySet().forEach(history::remove);
         subtasks.clear();
     }
 
@@ -157,7 +152,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         Subtask newSubtask = new Subtask(generationId(), subtask.getTitle(), subtask.getDescription(), subtask.getDuration(), subtask.getStartTime(), subtask.getStatus(), subtask.getEpicId());
         subtasks.put(newSubtask.getId(), newSubtask);
-        Epic epic = epics.get(subtask.getEpicId());
+        Epic epic = epics.get(newSubtask.getEpicId());
         if (epic != null) {
             epic.getSubtasksId().add(newSubtask.getId());
             updateEpicStatus(epic);
@@ -200,12 +195,8 @@ public class InMemoryTaskManager implements TaskManager {
     public TreeSet<Task> getPrioritizedTasks() {
         TreeSet<Task> tree = new TreeSet<>(new TaskStartTimeComparator());
 
-        tasks.values().stream()
+        Stream.concat(tasks.values().stream(), subtasks.values().stream())
                 .filter(task -> task.getStartTime() != null)
-                .forEach(tree::add);
-
-        subtasks.values().stream()
-                .filter(subtask -> subtask.getStartTime() != null)
                 .forEach(tree::add);
 
         return tree;
@@ -227,22 +218,22 @@ public class InMemoryTaskManager implements TaskManager {
                 if (subtask.getStatus() != Status.DONE) {
                     allDone = false;
                 }
-            }
 
-            LocalDateTime subtaskStart = subtask.getStartTime();
-            if (subtaskStart != null) {
-                if (subtaskStart.isBefore(earliestStart)) {
-                    earliestStart = subtaskStart;
+                LocalDateTime subtaskStart = subtask.getStartTime();
+                if (subtaskStart != null) {
+                    if (subtaskStart.isBefore(earliestStart)) {
+                        earliestStart = subtaskStart;
+                    }
+
+                    LocalDateTime subtaskEnd = subtask.getEndTime();
+                    if (subtaskEnd.isAfter(latestEnd)) {
+                        latestEnd = subtaskEnd;
+                    }
                 }
 
-                LocalDateTime subtaskEnd = subtask.getEndTime();
-                if (subtaskEnd.isAfter(latestEnd)) {
-                    latestEnd = subtaskEnd;
+                if (subtask.getDuration() != null) {
+                    totalDuration = totalDuration.plus(subtask.getDuration());
                 }
-            }
-
-            if (subtask.getDuration() != null) {
-                totalDuration = totalDuration.plus(subtask.getDuration());
             }
         }
 
@@ -285,29 +276,17 @@ public class InMemoryTaskManager implements TaskManager {
         if (task1.getStartTime() == null && task2.getStartTime() == null)
             return false;
 
-
-        LocalDateTime start1 = task1.getStartTime();
-        LocalDateTime end1 = task1.getEndTime();
-        LocalDateTime start2 = task2.getStartTime();
-        LocalDateTime end2 = task2.getEndTime();
-
-        return !(end1.isBefore(start2) || end2.isBefore(start1));
+        return !(task1.getEndTime().isBefore(task2.getStartTime()) ||
+                task2.getEndTime().isBefore(task1.getStartTime()));
     }
 
     private boolean isTaskOverLapWithAny(Task task) {
         if (task.getStartTime() == null)
             return false;
 
-        boolean taskOverLap = tasks.values().stream()
+        return Stream.concat(tasks.values().stream(), subtasks.values().stream())
                 .filter(t -> t.getId() != task.getId())
                 .filter(t -> t.getStartTime() != null)
                 .anyMatch(t -> isTaskOverLap(t, task));
-
-        if (taskOverLap) return true;
-
-        return subtasks.values().stream()
-                .filter(s -> s.getId() != task.getId())
-                .filter(s -> s.getStartTime() != null)
-                .anyMatch(s -> isTaskOverLap(s, task));
     }
 }

@@ -166,42 +166,59 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private Task fromString(String value) {
-        String[] split = value.split(",");
+        try {
+            String[] split = value.split(",");
 
-        int id = Integer.parseInt(split[0]);
-        TypeTask type = TypeTask.valueOf(split[1]);
-        String title = split[2];
-        String description = split[4];
-        Status status = Status.valueOf(split[3]);
+            int id = Integer.parseInt(split[0]);
+            TypeTask type = TypeTask.valueOf(split[1]);
+            String title = split[2];
+            Status status = Status.valueOf(split[3]);
+            String description = split[4];
 
-        LocalDateTime startTime = split[5].isEmpty() ? null : LocalDateTime.parse(split[5], DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        Duration duration = split[6].isEmpty() ? null : Duration.ofMinutes(Long.parseLong(split[6]));
+            LocalDateTime startTime = null;
+            if (split.length > 5 && !split[5].isEmpty())
+                startTime = LocalDateTime.parse(split[5], DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        switch (type) {
-            case TASK -> {
-                return new Task(id, title, description, duration, startTime, status);
-            }
-            case SUBTASK -> {
-                int epicId = Integer.parseInt(split[7]);
-                Subtask subtask = new Subtask(id, title, description, duration, startTime, status, epicId);
-                Epic epic = epics.get(subtask.getEpicId());
-                if (epic != null) {
-                    epic.getSubtasksId().add(subtask.getId());
+            Duration duration = null;
+            if (split.length > 6 && !split[6].isEmpty())
+                duration = Duration.ofMinutes(Long.parseLong(split[6]));
+
+            switch (type) {
+                case TASK -> {
+                    Task task = new Task(id, title, description, status);
+                    task.setStartTime(startTime);
+                    task.setDuration(duration);
+                    return task;
                 }
-                return subtask;
-            }
-            case EPIC -> {
-                Epic epic = new Epic(id, title, description, new ArrayList<>());
-                epic.setStartTime(startTime);
-                epic.setDuration(duration);
-                if (startTime != null && duration != null) {
-                    epic.setEndTime(startTime.plus(duration));
+                case SUBTASK -> {
+                    int epicId = split.length > 7 ? Integer.parseInt(split[7]) : -1;
+                    Subtask subtask = new Subtask(id, title, description, status, epicId);
+                    subtask.setStartTime(startTime);
+                    subtask.setDuration(duration);
+
+                    if (epicId != -1) {
+                        Epic epic = epics.get(epicId);
+                        if (epic != null) {
+                            epic.getSubtasksId().add(subtask.getId());
+                        }
+                    }
+                    return subtask;
                 }
-                return epic;
+                case EPIC -> {
+                    Epic epic = new Epic(id, title, description, new ArrayList<>());
+                    epic.setStartTime(startTime);
+                    epic.setDuration(duration);
+                    if (startTime != null && duration != null) {
+                        epic.setEndTime(startTime.plus(duration));
+                    }
+                    return epic;
+                }
+                default -> {
+                    return null;
+                }
             }
-            default -> {
-                return null;
-            }
+        } catch (Exception e) {
+            throw new ManagerSaveException("Ошибка при чтении задачи из строки: " + value, e);
         }
     }
 

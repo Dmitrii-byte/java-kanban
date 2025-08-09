@@ -10,12 +10,6 @@ public class TaskStartTimeComparator implements Comparator<Task> {
         if (task1.getStartTime() == null && task2.getStartTime() == null) {
             return Integer.compare(task1.getId(), task2.getId());
         }
-        if (task1.getStartTime() == null) {
-            return 1;
-        }
-        if (task2.getStartTime() == null) {
-            return -1;
-        }
         int timeComparison = task1.getStartTime().compareTo(task2.getStartTime());
         return timeComparison != 0 ? timeComparison : Integer.compare(task1.getId(), task2.getId());
     }
