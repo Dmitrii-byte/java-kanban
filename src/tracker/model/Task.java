@@ -3,6 +3,9 @@ package tracker.model;
 import tracker.Status.Status;
 import tracker.TypeTask.TypeTask;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task {
@@ -10,6 +13,8 @@ public class Task {
     private String title;
     private String description;
     private Status status;
+    private Duration duration;
+    private LocalDateTime startTime;
 
     protected Task() {
         status = Status.NEW;
@@ -22,7 +27,20 @@ public class Task {
     }
 
     public Task(String title, String description, Status status) {
+        this();
+        this.title = title;
+        this.description = description;
+        this.status = status;
+    }
+
+    public Task(String title, String description, Duration duration, LocalDateTime startTime) {
         this(title, description);
+        this.duration = duration;
+        this.startTime = startTime;
+    }
+
+    public Task(String title, String description, Duration duration, LocalDateTime startTime, Status status) {
+        this(title, description, duration, startTime);
         this.status = status;
     }
 
@@ -33,6 +51,16 @@ public class Task {
 
     public Task(int id, String title, String description, Status status) {
         this(title, description, status);
+        this.id = id;
+    }
+
+    public Task(int id, String title, String description, Duration duration, LocalDateTime startTime) {
+        this(title, description, duration, startTime);
+        this.id = id;
+    }
+
+    public Task(int id, String title, String description, Duration duration, LocalDateTime startTime, Status status) {
+        this(title, description, duration, startTime, status);
         this.id = id;
     }
 
@@ -82,6 +110,29 @@ public class Task {
         return false;
     }
 
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null || duration == null) {
+            return null;
+        }
+        return startTime.plus(duration);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
@@ -94,6 +145,9 @@ public class Task {
                 + "; title - " + title
                 + "; description - " + description
                 + "; status - " + status
+                + "; startTime - " + (getStartTime() != null ? getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) : " ")
+                + "; duration - " + (getDuration() != null ? getDuration().toHours() + ":" + getDuration().toMinutesPart() : " ")
+                + "; endTime - " + (getEndTime() != null ? getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) : " ")
                 + "}";
     }
 }

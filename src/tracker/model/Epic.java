@@ -2,10 +2,13 @@ package tracker.model;
 
 import tracker.TypeTask.TypeTask;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Epic extends Task {
     private ArrayList<Integer> subtasksId;
+    private LocalDateTime endTime;
 
     public Epic(String title, String description, ArrayList<Integer> subtasksId) {
         super(title, description);
@@ -26,6 +29,15 @@ public class Epic extends Task {
     }
 
     @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    @Override
     public TypeTask getType() {
         return TypeTask.EPIC;
     }
@@ -37,6 +49,9 @@ public class Epic extends Task {
                 + "; title - " + getTitle()
                 + "; description - " + getDescription()
                 + "; status - " + getStatus()
+                + "; startTime - " + (getStartTime() != null ? getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) : " ")
+                + "; duration - " + (getDuration() != null ? getDuration().toHours() + ":" + getDuration().toMinutesPart() : " ")
+                + "; endTime - " + (getEndTime() != null ? getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) : " ")
                 + "; subtasks=" + subtasksId
                 + '}';
     }
