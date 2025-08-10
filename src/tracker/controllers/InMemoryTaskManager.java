@@ -1,6 +1,5 @@
 package tracker.controllers;
 
-import tracker.Comparator.TaskStartTimeComparator;
 import tracker.Exception.ManagerTimeOverLapException;
 import tracker.model.*;
 import tracker.Status.Status;
@@ -16,6 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Epic> epics = new HashMap<>();
     protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager history = Managers.getDefaultHistory();
+    protected final Set<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
     private int id = 0;
 
     // методы для задач
@@ -27,6 +27,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void clearTasks() {
         tasks.keySet().forEach(history::remove);
+        prioritizedTasks.removeIf(task -> tasks.containsKey(task.getId()));
         tasks.clear();
     }
 
@@ -42,6 +43,9 @@ public class InMemoryTaskManager implements TaskManager {
 
         Task newTask = new Task(generationId(), task.getTitle(), task.getDescription(), task.getDuration(), task.getStartTime(), task.getStatus());
         tasks.put(newTask.getId(), newTask);
+        if (newTask.getStartTime() != null) {
+            prioritizedTasks.add(newTask);
+        }
         task.setId(newTask.getId());
     }
 
@@ -50,6 +54,7 @@ public class InMemoryTaskManager implements TaskManager {
         Task task = tasks.get(id);
         if (task == null) return;
         tasks.remove(id);
+        prioritizedTasks.remove(task);
         history.remove(id);
     }
 
@@ -58,6 +63,14 @@ public class InMemoryTaskManager implements TaskManager {
         if (isTaskOverLapWithAny(task))
             throw new ManagerTimeOverLapException("Обновленная задача \"" + task.getTitle() + "\" пересекается по времени с существующей задачей");
 
+        Task oldTask = tasks.get(task.getId());
+        if (oldTask != null) {
+            prioritizedTasks.remove(oldTask);
+        }
+
+        if (task.getStartTime() != null) {
+            prioritizedTasks.add(task);
+        }
         tasks.put(task.getId(), task);
     }
 
@@ -137,6 +150,7 @@ public class InMemoryTaskManager implements TaskManager {
                 .forEach(this::updateEpicStatus);
 
         subtasks.keySet().forEach(history::remove);
+        prioritizedTasks.removeIf(task -> subtasks.containsKey(task.getId()));
         subtasks.clear();
     }
 
@@ -157,6 +171,9 @@ public class InMemoryTaskManager implements TaskManager {
             epic.getSubtasksId().add(newSubtask.getId());
             updateEpicStatus(epic);
         }
+        if (newSubtask.getStartTime() != null) {
+            prioritizedTasks.add(newSubtask);
+        }
         subtask.setId(newSubtask.getId());
     }
 
@@ -170,6 +187,7 @@ public class InMemoryTaskManager implements TaskManager {
             updateEpicStatus(epic);
         }
         subtasks.remove(id);
+        prioritizedTasks.remove(subtask);
         history.remove(id);
     }
 
@@ -178,6 +196,14 @@ public class InMemoryTaskManager implements TaskManager {
         if (isTaskOverLapWithAny(subtask))
             throw new ManagerTimeOverLapException("Обновленная подзадача \"" + subtask.getTitle() + "\" пересекается по времени с существующей задачей");
 
+        Subtask oldSubtask = subtasks.get(subtask.getId());
+        if (oldSubtask != null) {
+            prioritizedTasks.remove(oldSubtask);
+        }
+
+        if (subtask.getStartTime() != null) {
+            prioritizedTasks.add(subtask);
+        }
         subtasks.put(subtask.getId(), subtask);
         updateEpicStatus(epics.get(subtask.getEpicId()));
     }
@@ -192,14 +218,9 @@ public class InMemoryTaskManager implements TaskManager {
         history.clearHistory();
     }
 
-    public TreeSet<Task> getPrioritizedTasks() {
-        TreeSet<Task> tree = new TreeSet<>(new TaskStartTimeComparator());
-
-        Stream.concat(tasks.values().stream(), subtasks.values().stream())
-                .filter(task -> task.getStartTime() != null)
-                .forEach(tree::add);
-
-        return tree;
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedTasks);
     }
 
     protected void updateEpicStatus(Epic epic) {

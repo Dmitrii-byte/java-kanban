@@ -2,7 +2,6 @@ package tracker.model;
 
 import tracker.TypeTask.TypeTask;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -27,16 +26,6 @@ public class Epic extends Task {
 
     public void setSubtasks(ArrayList<Integer> subtasksId) {
         this.subtasksId = subtasksId;
-    }
-
-    @Override
-    public Duration getDuration() {
-        return super.getDuration();
-    }
-
-    @Override
-    public LocalDateTime getStartTime() {
-        return super.getStartTime();
     }
 
     @Override

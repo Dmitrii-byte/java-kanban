@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import tracker.model.Task;
 
 import java.time.Duration;
-import java.util.TreeSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,7 +46,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         taskManager.addEpic(epic);
         taskManager.addSubtask(subtask);
 
-        TreeSet<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
 
         assertEquals(3, prioritizedTasks.size(), "Неверное количество задач в TreeSet");
 
@@ -61,7 +61,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         taskManager.addTask(task);
         taskManager.addTask(taskWithoutTime);
 
-        TreeSet<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
 
         assertEquals(1, prioritizedTasks.size(), "Должна быть только одна задача с временем");
         assertTrue(prioritizedTasks.contains(task), "Задача с временем должна быть в списке");
@@ -69,7 +69,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
 
     @Test
     void getPrioritizedTasksShouldReturnEmptySetForEmptyManager() {
-        TreeSet<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
         assertTrue(prioritizedTasks.isEmpty(), "Для пустого менеджера должен возвращаться пустой TreeSet");
     }
 }
