@@ -6,10 +6,8 @@ import tracker.controllers.TaskManager;
 import java.io.IOException;
 
 public class HistoryHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
-
     public HistoryHandler(TaskManager taskManager) {
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
@@ -18,7 +16,7 @@ public class HistoryHandler extends BaseHttpHandler {
             String response = gson.toJson(taskManager.getHistory());
             sendSuccess(exchange, response);
         } else {
-            sendNotFound(exchange);
+            sendMethodNotAllowed(exchange);
         }
     }
 }

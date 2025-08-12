@@ -7,10 +7,8 @@ import tracker.model.Epic;
 import java.io.IOException;
 
 public class EpicsHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
-
     public EpicsHandler(TaskManager taskManager) {
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
@@ -24,7 +22,7 @@ public class EpicsHandler extends BaseHttpHandler {
                 } else if (path.matches("/epics/\\d+/subtasks")) {
                     handleGetEpicSubtasks(exchange);
                 } else {
-                    sendNotFound(exchange);
+                    sendBadRequest(exchange);
                 }
                 break;
             case "POST":
@@ -34,11 +32,11 @@ public class EpicsHandler extends BaseHttpHandler {
                 if (path.matches("/epics/\\d+")) {
                     handleDeleteEpic(exchange);
                 } else {
-                    sendNotFound(exchange);
+                    sendBadRequest(exchange);
                 }
                 break;
             default:
-                sendNotFound(exchange);
+                sendMethodNotAllowed(exchange);
         }
     }
 
@@ -75,7 +73,7 @@ public class EpicsHandler extends BaseHttpHandler {
     private void handleCreateEpic(HttpExchange exchange) throws IOException {
         Epic epic = readRequest(exchange, Epic.class);
         if (epic == null) {
-            sendNotFound(exchange);
+            sendBadRequest(exchange);
             return;
         }
 

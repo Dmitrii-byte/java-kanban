@@ -78,6 +78,6 @@ class HistoryHandlerTest extends BaseHttpHandlerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(404, response.statusCode());
+        assertEquals(405, response.statusCode());
     }
 }

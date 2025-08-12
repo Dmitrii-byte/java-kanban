@@ -6,10 +6,8 @@ import tracker.controllers.TaskManager;
 import java.io.IOException;
 
 public class PrioritizedHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
-
     public PrioritizedHandler(TaskManager taskManager) {
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
@@ -18,7 +16,7 @@ public class PrioritizedHandler extends BaseHttpHandler {
             String response = gson.toJson(taskManager.getPrioritizedTasks());
             sendSuccess(exchange, response);
         } else {
-            sendNotFound(exchange);
+            sendMethodNotAllowed(exchange);
         }
     }
 }

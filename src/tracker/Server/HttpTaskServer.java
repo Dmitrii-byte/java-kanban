@@ -1,6 +1,5 @@
 package tracker.Server;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import tracker.controllers.Managers;
 import tracker.controllers.TaskManager;
@@ -11,7 +10,6 @@ import java.net.InetSocketAddress;
 public class HttpTaskServer {
     private static final int PORT = 8080;
     private final HttpServer server;
-    private static final Gson gson = BaseHttpHandler.getGson();
 
     public HttpTaskServer(TaskManager taskManager) throws IOException {
         this.server = HttpServer.create(new InetSocketAddress(PORT), 0);
@@ -21,10 +19,6 @@ public class HttpTaskServer {
         server.createContext("/epics", new EpicsHandler(taskManager));
         server.createContext("/history", new HistoryHandler(taskManager));
         server.createContext("/prioritized", new PrioritizedHandler(taskManager));
-    }
-
-    public static Gson getGson() {
-        return gson;
     }
 
     public void start() {

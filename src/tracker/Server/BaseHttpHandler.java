@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpHandler;
 import tracker.Adapters.DurationAdapter;
 import tracker.Adapters.LocalDateTimeAdapter;
+import tracker.controllers.TaskManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,11 @@ public abstract class BaseHttpHandler implements HttpHandler {
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .registerTypeAdapter(Duration.class, new DurationAdapter())
             .create();
+    protected final TaskManager taskManager;
+
+    public BaseHttpHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
 
     public static Gson getGson() {
         return gson;
@@ -58,6 +64,16 @@ public abstract class BaseHttpHandler implements HttpHandler {
     protected void sendNotFound(HttpExchange exchange) throws IOException {
         String response = "Запрашиваемый ресурс не найден";
         sendText(exchange, response, 404);
+    }
+
+    protected void sendMethodNotAllowed(HttpExchange exchange) throws IOException {
+        String response = "Метод не поддерживается";
+        sendText(exchange, response, 405);
+    }
+
+    protected void sendBadRequest(HttpExchange exchange) throws IOException {
+        String response = "Некорректный запрос";
+        sendText(exchange, response, 400);
     }
 
     protected void sendHasOverlaps(HttpExchange exchange) throws IOException {

@@ -8,10 +8,8 @@ import tracker.model.Task;
 import java.io.IOException;
 
 public class TasksHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
-
     public TasksHandler(TaskManager taskManager) {
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
@@ -23,7 +21,7 @@ public class TasksHandler extends BaseHttpHandler {
                 } else if (path.matches("/tasks/\\d+")) {
                     handleGetTaskById(exchange);
                 } else {
-                    sendNotFound(exchange);
+                    sendBadRequest(exchange);
                 }
                 break;
             case "POST":
@@ -33,11 +31,11 @@ public class TasksHandler extends BaseHttpHandler {
                 if (path.matches("/tasks/\\d+")) {
                     handleDeleteTask(exchange);
                 } else {
-                    sendNotFound(exchange);
+                    sendBadRequest(exchange);
                 }
                 break;
             default:
-                sendNotFound(exchange);
+                sendMethodNotAllowed(exchange);
         }
     }
 
@@ -61,7 +59,7 @@ public class TasksHandler extends BaseHttpHandler {
     private void handleCreateOrUpdateTask(HttpExchange exchange) throws IOException {
         Task task = readRequest(exchange, Task.class);
         if (task == null) {
-            sendNotFound(exchange);
+            sendBadRequest(exchange);
             return;
         }
 

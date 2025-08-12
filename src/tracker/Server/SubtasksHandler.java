@@ -8,10 +8,8 @@ import tracker.model.Subtask;
 import java.io.IOException;
 
 public class SubtasksHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
-
     public SubtasksHandler(TaskManager taskManager) {
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
@@ -23,7 +21,7 @@ public class SubtasksHandler extends BaseHttpHandler {
                 } else if (path.matches("/subtasks/\\d+")) {
                     handleGetSubtaskById(exchange);
                 } else {
-                    sendNotFound(exchange);
+                    sendBadRequest(exchange);
                 }
                 break;
             case "POST":
@@ -33,11 +31,11 @@ public class SubtasksHandler extends BaseHttpHandler {
                 if (path.matches("/subtasks/\\d+")) {
                     handleDeleteSubtask(exchange);
                 } else {
-                    sendNotFound(exchange);
+                    sendBadRequest(exchange);
                 }
                 break;
             default:
-                sendNotFound(exchange);
+                sendMethodNotAllowed(exchange);
         }
     }
 
@@ -61,7 +59,7 @@ public class SubtasksHandler extends BaseHttpHandler {
     private void handleCreateOrUpdateSubtask(HttpExchange exchange) throws IOException {
         Subtask subtask = readRequest(exchange, Subtask.class);
         if (subtask == null) {
-            sendNotFound(exchange);
+            sendBadRequest(exchange);
             return;
         }
 
